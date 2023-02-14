@@ -15,7 +15,7 @@ data class Image(val value: Int, val data: IntArray) {
 
 fun main(args: Array<String>) {
 
-    val linesFromFile = Files.readAllLines(Paths.get("archive_mnist\\mnist_test.csv"))
+    val linesFromFile = Files.readAllLines(Paths.get("archive_mnist\\mnist_train.csv"))
     val images = linesFromFile.map { Image.parse(it) }
     println(linesFromFile.size)
     println("Hello")
