@@ -1,3 +1,4 @@
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.math.sqrt
@@ -26,7 +27,7 @@ data class Image(val value: Int?, val data: IntArray) {
     fun distance(anotherImage: Image): Double {
         var summ: Int = 0
         for (i in 0 until anotherImage.data.size)
-            summ += data[i] - anotherImage.data[i] * data[i] - anotherImage.data[i]
+            summ += (data[i] - anotherImage.data[i]) * (data[i] - anotherImage.data[i])
         return sqrt(summ.toDouble())
     }
 
@@ -45,14 +46,47 @@ data class Image(val value: Int?, val data: IntArray) {
 
 fun main(args: Array<String>) {
 
-    val linesFromFile = Files.readAllLines(Paths.get("archive_mnist\\mnist_train.csv"))
+    val linesFromFile = Files.readAllLines(
+        Paths.get(
+            "archive_mnist" + File.separator +
+                    "mnist_train.csv"
+        )
+    )
 
     val images = linesFromFile.subList(1, linesFromFile.size).map { Image.parseWithValue(it) }
     images.take(1).forEach { print(it) }
     println(linesFromFile.size)
 
-    val linesFromFileTest = Files.readAllLines(Paths.get("archive_mnist\\mnist_test.csv"))
+    val linesFromFileTest = Files.readAllLines(
+        Paths.get(
+            "archive_mnist" + File.separator +
+                    "mnist_test.csv"
+        )
+    )
     val imagesTest =
         linesFromFileTest.subList(1, linesFromFileTest.size).map { Image.parseWithoutValue(it) }
     println(imagesTest.first())
+
+    val k = 10
+
+
+    imagesTest.forEach { image ->
+
+        val kImages = mutableListOf<Image>()
+
+        for (i in 0 until k) {
+
+            val imagesMinDistance = images
+                .filter { it !in kImages }
+                .minBy { image.distance(it) }
+            kImages.add(imagesMinDistance)
+        }
+    }
+
+
 }
+
+
+
+
+
