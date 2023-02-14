@@ -1,6 +1,7 @@
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.function.BiFunction
 import kotlin.math.sqrt
 
 data class Image(val value: Int?, val data: IntArray) {
@@ -10,7 +11,10 @@ data class Image(val value: Int?, val data: IntArray) {
             // 0,2,5...
             val number = line.split(",")
             val value = number[0].toInt()
-            val data = number.subList(1, number.size).map { it.toInt() }.toIntArray()
+            val data = number
+                .subList(1, number.size)
+                .map { it.toInt() }
+                .toIntArray()
             return Image(value, data)
         }
 
@@ -18,7 +22,9 @@ data class Image(val value: Int?, val data: IntArray) {
             // 0,2,5...
             val number = line.split(",")
             val value = null
-            val data = number.map { it.toInt() }.toIntArray()
+            val data = number
+                .map { it.toInt() }
+                .toIntArray()
             return Image(value, data)
         }
 
@@ -53,9 +59,12 @@ fun main(args: Array<String>) {
         )
     )
 
-    val images = linesFromFile.subList(1, linesFromFile.size).map { Image.parseWithValue(it) }
+    val images = linesFromFile
+        .subList(1, linesFromFile.size)
+        .map { Image.parseWithValue(it) }
+
     images.take(1).forEach { print(it) }
-    println(linesFromFile.size)
+   // println(linesFromFile.size)
 
     val linesFromFileTest = Files.readAllLines(
         Paths.get(
@@ -65,22 +74,34 @@ fun main(args: Array<String>) {
     )
     val imagesTest =
         linesFromFileTest.subList(1, linesFromFileTest.size).map { Image.parseWithoutValue(it) }
-    println(imagesTest.first())
+    //println(imagesTest.first())
 
     val k = 10
 
 
     imagesTest.forEach { image ->
 
+        println(image)
+
         val kImages = mutableListOf<Image>()
+        val counts = mutableMapOf<Int, Int>()
 
         for (i in 0 until k) {
-
             val imagesMinDistance = images
                 .filter { it !in kImages }
                 .minBy { image.distance(it) }
             kImages.add(imagesMinDistance)
         }
+
+        kImages.forEach { image ->
+            counts.compute(image.value!!, object : BiFunction<Int, Int?, Int?> {
+                override fun apply(key: Int, value: Int?): Int? {
+                    return if (value == null) 1 else value + 1
+                }
+            })
+        }
+
+        println(counts.entries.maxBy { it.value })
     }
 
 
